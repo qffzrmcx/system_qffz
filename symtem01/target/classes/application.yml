@@ -1,0 +1,23 @@
+#配置数据库的连接信息
+Spring:
+  application:
+    name: Gmae01
+  #数据库的连接信息
+  datasource:
+    url: jdbc:mysql://localhost:3306/system_db01
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: a835942651a
+
+#mybatis的配置信息
+Mybatis:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    #开启驼峰命名
+    map-underscore-to-camel-case: true
+#阿里云OSS
+aliyun:
+  oss:
+    endpoint: https://oss-cn-beijing.aliyuncs.com
+    bucketName: java-system01-qffz
+    region: cn-beijing

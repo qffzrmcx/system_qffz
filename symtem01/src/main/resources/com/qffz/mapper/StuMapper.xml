@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qffz.mapper.StuMapper">
+    <select id="list" resultType="com.qffz.pojo.Student">
+        select s.*, m.name majorName from student as s left join major as m on s.major_id = m.id
+        <where>
+            <if test="name != null and name != ''">
+                s.name like concat('%',#{name},'%')
+            </if>
+            <if test="gender != null">
+                and s.gender = #{gender}
+            </if>
+            <if test="begin != null and end != null">
+                and s.enter_time between #{begin} and #{end}
+            </if>
+        </where>
+    </select>
+    <!--批量删除学生信息-->
+    <delete id="deleteByIds">
+        delete from student where id in
+        <foreach collection="ids" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </delete>
+    <!--自定义结果集ResultMap-->
+    <resultMap id="stuResultMap" type="com.qffz.pojo.Student">
+        <id column="id" property="id" />
+        <result column="stunum" property="stunum" />
+        <result column="name" property="name" />
+        <result column="password" property="password" />
+        <result column="image" property="image" />
+        <result column="gender" property="gender" />
+        <result column="age" property="age" />
+        <result column="major_id" property="majorId" />
+        <result column="email" property="email" />
+        <result column="image" property="image" />
+        <result column="enter_time" property="enterTime" />
+        <result column="update_time" property="updateTime" />
+
+        <!--封装uploadList-->
+        <collection property="uploadList" ofType="com.qffz.pojo.StuUpload">
+            <id column="u_id" property="id"/>
+            <result column="u_stu_id" property="stuId"/>
+            <result column="u_content" property="content"/>
+            <result column="u_upload_time" property="uploadTime"/>
+        </collection>
+    </resultMap>
+
+    <!--根据ID查询学生的详细信息-->
+    <select id="getById" resultMap="stuResultMap">
+        select s.*,
+               u.id u_id,
+               u.stu_id u_stuid,
+               u.content u_content,
+               u.upload_time u_upload_time
+        from student s left join stu_upload u on s.id = u.stu_id
+        where s.id = #{id}
+    </select>
+    <!--根据ID更新学生信息-->
+    <update id="updateById">
+        update student
+        <set>
+            <if test="stunum != null and stunum != ''">stunum = #{stunum},</if>
+            <if test="name != null">name = #{name},</if>
+            <if test="password != null">password = #{password},</if>
+            <if test="image != null">image = #{image},</if>
+            <if test="gender != null">gender = #{gender},</if>
+            <if test="age != null">age = #{age},</if>
+            <if test="majorId != null">major_id = #{majorId},</if>
+            <if test="email != null">email = #{email},</if>
+            <if test="enterTime != null">enter_time = #{enterTime},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </set>
+        where id = #{id}
+    </update>
+    <!-- 统计各个专业的学生人数 -->
+    <select id="countStuMajorData" resultType="java.util.Map">
+        select
+            coalesce(m.name, '未分配专业') pos,  -- 专业名称，如果为空则显示"未分配专业"
+            count(*) total                      -- 统计人数
+        from student s
+                 left join major m on s.major_id = m.id  -- 左连接专业表
+        group by s.major_id, m.name             -- 按专业分组
+        order by total desc                     -- 按人数降序
+    </select>
+    <!-- 统计学生的性别信息 -->
+    <select id="countStuGenderData" resultType="java.util.Map">
+        select
+            case
+                when gender = 1 then '男'
+                when gender = 0 then '女'
+                when gender = 2 then '秀吉'
+                else '未知'
+                end as gender,
+            count(*) as number
+        from student
+        group by gender
+        order by number desc
+    </select>
+</mapper>

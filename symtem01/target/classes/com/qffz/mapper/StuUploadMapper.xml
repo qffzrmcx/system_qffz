@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qffz.mapper.StuUploadMapper">
+
+    <insert id="addBatch">
+        insert into stu_upload (stu_id, content, upload_time) values
+        <foreach collection="uploadList" item="upload" separator=",">
+            (#{uplod.stuId}, #{uplod.content}, #{uplod.uploadTime})
+        </foreach>
+    </insert>
+    <!--根据学生的ID批量删除上传博客信息-->
+    <delete id="deleteByStuIds">
+        delete from stu_upload where stu_id in
+        <foreach collection="ids" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>
